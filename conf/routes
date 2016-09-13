@@ -1,0 +1,13 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET      /typerefs                        com.kodebeagle.controller.Application.typeRefs(query: String)
+GET      /search                          com.kodebeagle.controller.Application.search(query: String)
+GET      /suggest/:text                   com.kodebeagle.controller.Application.suggest(text: String)
+GET      /properties                      com.kodebeagle.controller.Application.properties(types: String)
+GET      /source/:file                    com.kodebeagle.controller.Application.source(file: String)
+GET      /repodetails/:repo               com.kodebeagle.controller.Application.repoDetails(repo: String)
+GET      /filedetails/:file               com.kodebeagle.controller.Application.fileDetails(file: String)
+GET      /metadata/type/:type             com.kodebeagle.controller.Application.metadataWithType(type: String)
+GET      /metadata/file/:file             com.kodebeagle.controller.Application.metadataWithFile(file: String)

@@ -1,0 +1,10 @@
+.idea/
+project/project/
+project/target/
+target/
+logs/
+.sbtserver/
+activator
+project/.sbtserver
+project/.sbtserver.lock
+metastore_db/
