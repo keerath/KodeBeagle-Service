@@ -1,0 +1,16 @@
+language: scala
+scala:
+- 2.11.6
+jdk:
+  - oraclejdk8
+services:
+ 
+env:
+  - PR_VALIDATE=1
+  - PR_VALIDATE=0
+
+script:
+  - bin/run_tests.sh
+
+notifications:
+  email: true
