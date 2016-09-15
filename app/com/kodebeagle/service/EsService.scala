@@ -43,7 +43,7 @@ object EsService extends App with Logger {
     val response = EsClient.search(searchRequest)
     val typeAndProps = types.map(t => (t.nameWithBool.name, t.props))
 
-    transformTypeRefs(response, typeAndProps)
+    transformTypeRefs(response, typeAndProps.toMap)
   }
 
   /* Queries for props against java/aggregation with types names */

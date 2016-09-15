@@ -62,11 +62,13 @@ object JsonUtils {
   def makeClientQuery(query: String): ClientQuery = Json.parse(query).as[ClientQuery]
 
   def transformTypeRefs(response: SearchResponse,
-                        typeAndProps: List[(String, List[String])]): JsObject = {
+                        queriedTypesAndProps: Map[String, List[String]]): JsObject = {
     val hits = response.getHitsAsStringList
     val hitsCount = response.getHitsCount
+    val queriedTypes = queriedTypesAndProps.keys.toList
+
     val relatedTypes = response.getSignificantStringTerms("significantTypes")
-      .diff(typeAndProps.map(_._1.toLowerCase)).take(3)
+      .diff(queriedTypes.map(_.toLowerCase())).take(3)
 
     val transformedHits = hits.flatMap { hit =>
       val payload = Json.parse(hit).as[JsObject] \ "payload"
@@ -74,11 +76,31 @@ object JsonUtils {
       val score = (payload \ "score").as[JsNumber]
       val types = (payload \ "types").as[JsArray]
 
-      val filteredTypes = types.value.filter(`type` => typeAndProps.map(_._1).contains(
-        (`type`.as[JsObject] \ "name").as[String]))
+      val filteredTypes = types.value.filter(`type` => {
+        queriedTypes.contains((`type`.as[JsObject] \ "name").as[String])
+      })
 
-      if (filteredTypes.nonEmpty) {
-        Some(JsObject(Seq(("types", JsArray(filteredTypes)),
+      val filteredTypesAndProps = filteredTypes.map { `type` =>
+        val typeObj = `type`.as[JsObject]
+        val typeName = (typeObj \ "name").as[String]
+        val queriedProps = queriedTypesAndProps(typeName)
+        val props = (typeObj \ "props").as[JsArray]
+
+        val filteredProps =  if (queriedProps.nonEmpty) {
+          props.value.filter { prop =>
+            val propName = (prop \ "name").as[String]
+            queriedProps.contains(propName)
+          }
+        } else {
+          props.value
+        }
+
+        JsObject(Seq("name" -> JsString(typeName),
+          "props" -> JsArray(filteredProps)))
+      }
+
+      if (filteredTypesAndProps.nonEmpty) {
+        Some(JsObject(Seq(("types", JsArray(filteredTypesAndProps)),
           ("score", score), ("fileName", file))))
       } else {
         None
